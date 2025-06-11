@@ -8,6 +8,7 @@ Quick Image Cropper built upon OpenCV
 - Windows 10 (might work on any OS, provided the libs are included)
 
 **Usage**
+0) Download the dependencies through pip (Windows batch script included)
 1) Put the script into a folder full of pictures
 2) Launch it through a command line (python main.py -x -y -f -m -s -j -p)
    - -x: x-component of the aspect ratio (width), positive nonzero integer
