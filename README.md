@@ -12,7 +12,8 @@ Quick Image Cropper built upon OpenCV
 2) Launch it through a command line (python main.py -x -y -f -m -s -j -p)
    - -x: x-component of the aspect ratio (width), positive nonzero integer
    - -y: y-component of the aspect ratio (height), positive nonzero integer
-   - -f: Name of the folder created in the workdir, where the images will be stored. String. Defaults to 'CROPPED'
+   - -i: Path to the folder, from which the images are loaded. String. Defaults to the directory containing the main.py
+   - -o: Name of the folder created in the workdir (-i flag), where the images will be stored. String. Defaults to 'CROPPED'
    - -s: Zoom of the displayed image. Float. Defaults to 0.25. Range = <0.05, inf)
    - -t: Output image type. Defaults to JPG. Range = {JPG, PNG}
    - -j: Quality of the resulting JPG. Integer. Defaults to 95. Range = <10, 100>.
