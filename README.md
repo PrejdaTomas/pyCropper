@@ -33,3 +33,4 @@ Quick Image Cropper built upon OpenCV
 5) Repeat till the last picture
 6) Another functions will get added (skipping, going back and saving the image transforms like rotation and mirroring, perhaps ctrl-c and ctrl-z)
    
+**Warning**: not working yet
