@@ -1,13 +1,38 @@
-from .A_DEPENDENCIES import Number, typing, os
-from . import A_DEPENDENCIES
+from __future__ import annotations
+try: from A_DEPENDENCIES import runConstants, RunMode
+except: from .A_DEPENDENCIES import runConstants, RunMode
 
+if runConstants.RUNMODE== RunMode.RUN:
+	from .A_DEPENDENCIES import Number, typing, os
+	from .A_DEPENDENCIES import cv2Image, np
+	from . import A_DEPENDENCIES
 
+else:
+	from A_DEPENDENCIES import Number, typing, os
+	from A_DEPENDENCIES import cv2Image, np
+	import A_DEPENDENCIES
 
 # instance: The instance of the class where the descriptor is used.
 # owner: The class where the descriptor is used.
 # value: The value being assigned to the attribute.
 
-class StringDescr:
+class NonUniqueDescr:
+	def __init__(self, name: str = None) -> None:
+		# name: The name of the attribute being managed by the descriptor.
+		self.name = name
+
+	def __get__(self, instance: A_DEPENDENCIES.CLASS, owner: typing.Type[A_DEPENDENCIES.CLASS]) -> str:
+		return instance.__dict__[self.name]
+
+	def __set__(self, instance: A_DEPENDENCIES.CLASS, value: int) -> None:
+		instance.__dict__[self.name] = value
+
+	def __delete__(self, instance: A_DEPENDENCIES.CLASS) -> None:
+		del instance.__dict__[self.name]
+
+
+
+class StringDescr(NonUniqueDescr):
 	"""A descriptor protocol used for string assignments
 
 	Raises:
@@ -21,25 +46,15 @@ class StringDescr:
 	# owner: The class where the descriptor is used.
 	# value: The value being assigned to the attribute.
 
-	def __init__(self, name: str = None) -> None:
-		# name: The name of the attribute being managed by the descriptor.
-		self.name = name
-
-	def __get__(self, instance: A_DEPENDENCIES.CLASS, owner: typing.Type[A_DEPENDENCIES.CLASS]) -> str:
-		return instance.__dict__[self.name]
-
 	def __set__(self, instance: A_DEPENDENCIES.CLASS, value: int) -> None:
 		if not isinstance(value, str):
 			raise TypeError(f"{instance}: trying to set the {self.name} to a non-string value: {type(value)}={value}.")
 
 		instance.__dict__[self.name] = value
 
-	def __delete__(self, instance: A_DEPENDENCIES.CLASS) -> None:
-		del instance.__dict__[self.name]
 
 
-
-class CreatePathDescriptor:
+class CreatePathDescriptor(NonUniqueDescr):
 	"""A descriptor protocol used for path properties within a e.g. Constants instance, creates non-existent paths.
 
 	Raises:
@@ -52,9 +67,6 @@ class CreatePathDescriptor:
 	# owner: The class where the descriptor is used.
 	# value: The value being assigned to the attribute.
 
-	def __init__(self, name: str = None) -> None:
-		# name: The name of the attribute being managed by the descriptor.
-		self.name = name
 
 	def __get__(self, instance: A_DEPENDENCIES.CLASS, owner: typing.Type[A_DEPENDENCIES.CLASS]) -> A_DEPENDENCIES.Path:
 		if not os.path.exists(instance.__dict__[self.name]):
@@ -66,11 +78,8 @@ class CreatePathDescriptor:
 			os.makedirs(value, exist_ok=True)
 		instance.__dict__[self.name] = value
 
-	def __delete__(self, instance: A_DEPENDENCIES.CLASS) -> None:
-		del instance.__dict__[self.name]
 
-
-class ValidPathDescriptor:
+class ValidPathDescriptor(NonUniqueDescr):
 	"""A descriptor protocol used for path properties within a e.g. Constants instance, blocks using non-existent paths.
 
 	Raises:
@@ -83,26 +92,16 @@ class ValidPathDescriptor:
 	# owner: The class where the descriptor is used.
 	# value: The value being assigned to the attribute.
 
-	def __init__(self, name: str = None) -> None:
-		# name: The name of the attribute being managed by the descriptor.
-		self.name = name
-
-	def __get__(self, instance: A_DEPENDENCIES.CLASS, owner: typing.Type[A_DEPENDENCIES.CLASS]) -> A_DEPENDENCIES.Path:
-		return instance.__dict__[self.name]
 
 	def __set__(self, instance: A_DEPENDENCIES.CLASS, value: A_DEPENDENCIES.Path) -> None:
 		if not os.path.exists(value):
 			raise FileNotFoundError(f"{instance}: trying to set the {self.name} to a non-existent path: {value}.")
 		instance.__dict__[self.name] = value
 
-	def __delete__(self, instance: A_DEPENDENCIES.CLASS) -> None:
-		del instance.__dict__[self.name]
 
 
 
-
-
-class UnsignedInteger:
+class UnsignedInteger(NonUniqueDescr):
 	"""A descriptor protocol used for unsigned integer assignments
 
 	Raises:
@@ -116,12 +115,6 @@ class UnsignedInteger:
 	# owner: The class where the descriptor is used.
 	# value: The value being assigned to the attribute.
 
-	def __init__(self, name: str = None) -> None:
-		# name: The name of the attribute being managed by the descriptor.
-		self.name = name
-
-	def __get__(self, instance: A_DEPENDENCIES.CLASS, owner: typing.Type[A_DEPENDENCIES.CLASS]) -> int:
-		return instance.__dict__[self.name]
 
 	def __set__(self, instance: A_DEPENDENCIES.CLASS, value: int) -> None:
 		if not isinstance(value, int):
@@ -131,12 +124,9 @@ class UnsignedInteger:
 			raise ValueError(f"{instance}: trying to set the {self.name} to a negative value: {value}.")
 		instance.__dict__[self.name] = value
 
-	def __delete__(self, instance: A_DEPENDENCIES.CLASS) -> None:
-		del instance.__dict__[self.name]
 
 
-
-class RangedNumber:
+class RangedNumber(NonUniqueDescr):
 	"""A descriptor protocol used for floating point values in a range
 
 	Raises:
@@ -152,12 +142,10 @@ class RangedNumber:
 
 	def __init__(self, name: str = None, minimum: Number = -float("inf"), maximum: Number = float("inf")) -> None:
 		# name: The name of the attribute being managed by the descriptor.
-		self.name		= name
+		super(RangedNumber, self).__init__(name)
 		self.minimum	= minimum
 		self.maximum	= maximum
 
-	def __get__(self, instance: A_DEPENDENCIES.CLASS, owner: typing.Type[A_DEPENDENCIES.CLASS]) -> Number:
-		return instance.__dict__[self.name]
 
 	def __set__(self, instance: A_DEPENDENCIES.CLASS, value: Number) -> None:
 		if not isinstance(value, Number):
@@ -166,9 +154,6 @@ class RangedNumber:
 		if value < self.minimum or value > self.maximum:
 			raise ValueError(f"{instance}: trying to set the {self.name} to a value ({value}) outside the bound <{self.minimum}, {self.maximum}>.")
 		instance.__dict__[self.name] = value
-
-	def __delete__(self, instance: A_DEPENDENCIES.CLASS) -> None:
-		del instance.__dict__[self.name]
 
 
 
@@ -223,6 +208,10 @@ class WriteOnceMixin:
 
 
 
+
+
+
+
 class WriteOnce_UnsignedInteger(WriteOnceMixin, CheckIntMixin, UnsignedInteger): pass
 
 class WriteOnce_RangedInt(WriteOnceMixin, CheckIntMixin, RangedNumber): pass
@@ -232,3 +221,30 @@ class WriteOnce_RangedFloat(WriteOnceMixin, CheckFloatMixin, RangedNumber): pass
 class WriteOnce_CreatePath(WriteOnceMixin, CreatePathDescriptor): pass
 
 class WriteOnce_String(WriteOnceMixin, StringDescr): pass
+
+class ImageWrapperTYPECHECK(): pass
+
+class ImageOrienter(NonUniqueDescr):
+	def __init__(self, name=None, getFromAttr: str = None) -> None:
+		super().__init__(name)
+		self.getFrom = getFromAttr
+
+	def __get__(self, instance: A_DEPENDENCIES.CLASS, owner: typing.Type[A_DEPENDENCIES.CLASS]) -> A_DEPENDENCIES.ImageOrientation:
+		if not isinstance(instance, ImageWrapperTYPECHECK):
+			raise TypeError(f"{instance}: you have tried to assign an invalid class {instance.__class__.__name__}, it must be a np.ndarray of shape(x,y,3) here.")
+
+
+		if len(instance.image.shape) != 3: raise ValueError(f"{instance}: the image array needs to have the rank 3 tensor shape of (x,y,3|4), you have passed rank {len(instance.shape)} matrix")
+		if instance.image.shape[2] not in (3,4): raise ValueError(f"{instance}: the image array needs to have the rank 3 tensor shape of (x,y,3|4), your colour array does not have the length of 3 nor 4")
+		if instance.image.dtype != np.uint8: raise TypeError(f"{instance}: the image array must be of uint256 type, you have {instance.dtype}")
+
+		if instance is None or self.getFrom is None:
+			return None
+
+		image = getattr(instance, self.getFrom, None)
+		if image is None or not hasattr(image, "shape"):
+			return None
+
+		y, x = image.shape[:2]
+		if x >= y:return A_DEPENDENCIES.ImageOrientation.LANDSCAPE
+		else:return A_DEPENDENCIES.ImageOrientation.PORTRAIT

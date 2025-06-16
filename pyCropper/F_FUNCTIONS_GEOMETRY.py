@@ -1,8 +1,17 @@
-from .A_DEPENDENCIES import Number, typing
-from .A_DEPENDENCIES import aPoint, aColour, aCorners
+try: from A_DEPENDENCIES import runConstants, RunMode
+except: from .A_DEPENDENCIES import runConstants, RunMode
 
-from .D_CONSTANTS import userConstants, controlConstants
+if runConstants.RUNMODE== RunMode.TEST:
+	from A_DEPENDENCIES import Number, typing
+	from A_DEPENDENCIES import aPoint, aColour, aCorners,cv2Image, ImageOrientation
+	from D_CONSTANTS import userConstants, controlConstants
+	import E_FUNCTIONS_UTILITY
 
+else:
+	from .A_DEPENDENCIES import Number, typing
+	from .A_DEPENDENCIES import aPoint, aColour, aCorners,cv2Image, ImageOrientation
+	from .D_CONSTANTS import userConstants, controlConstants
+	from . import E_FUNCTIONS_UTILITY
 
 ASPECT_RATIO:					typing.Callable[[Number, Number], float]	= lambda dx=userConstants.WIDTH_SCALE, dy=userConstants.HEIGHT_SCALE: (dx / dy)**controlConstants.AR_EXPONENT
 
@@ -44,3 +53,49 @@ def getRectangleSizeSquared(corners: aCorners) -> int:
 
 def selectionLargeEnough(corners: aCorners, diagonalPow2: int = userConstants.MINIMUM_DIAGONAL_SIZE_SQUARED) -> bool:
 	return getRectangleSizeSquared(corners=corners) > diagonalPow2
+
+
+
+
+
+
+
+
+
+def greenInfo(imageOrientation: ImageOrientation, disp: cv2Image, corners: aCorners) -> None:
+	pt0, pt1 = corners
+
+	pt0s		= unscalePoint(pt0, userConstants.DISPLAY_SCALE)
+	pt1s		= unscalePoint(pt1, userConstants.DISPLAY_SCALE)
+
+	center		= (		(pt0[0] + pt1[0]) // 2,
+						(pt0[1] + pt1[1]) // 2
+	)
+
+	E_FUNCTIONS_UTILITY.greenRectangle(imageOrientation, disp, pt0, pt1)
+	E_FUNCTIONS_UTILITY.greenText(imageOrientation, disp, (pt0[0], int(pt0[1] * (1 - controlConstants.RELATIVE_TEXT_OFFSET))), f"D{pt0}")
+	E_FUNCTIONS_UTILITY.greenText(imageOrientation, disp, (pt0[0], int(pt0[1] * (1 - 4*controlConstants.RELATIVE_TEXT_OFFSET))), f"P{pt0s}")
+ 
+	E_FUNCTIONS_UTILITY.greenText(imageOrientation, disp, center, f"OK")
+ 
+	E_FUNCTIONS_UTILITY.greenText(imageOrientation, disp, (pt1[0], int(pt1[1] * (1 + controlConstants.RELATIVE_TEXT_OFFSET))), f"D{pt1}")
+	E_FUNCTIONS_UTILITY.greenText(imageOrientation, disp, (pt1[0], int(pt1[1] * (1 + 2*controlConstants.RELATIVE_TEXT_OFFSET))), f"P{pt1s}")
+ 
+def redWarning(imageOrientation: ImageOrientation, disp: cv2Image, corners: aCorners) -> None:
+	pt0, pt1 = corners
+
+	pt0s		= unscalePoint(pt0, userConstants.DISPLAY_SCALE)
+	pt1s		= unscalePoint(pt1, userConstants.DISPLAY_SCALE)
+
+	center		= (		(pt0[0] + pt1[0]) // 2,
+						(pt0[1] + pt1[1]) // 2
+	)
+
+	E_FUNCTIONS_UTILITY.redRectangle(imageOrientation, disp, pt0, pt1)
+	E_FUNCTIONS_UTILITY.redText(imageOrientation, disp, (pt0[0], int(pt0[1] * (1 - controlConstants.RELATIVE_TEXT_OFFSET))), f"D{pt0}")
+	E_FUNCTIONS_UTILITY.redText(imageOrientation, disp, (pt0[0], int(pt0[1] * (1 - 4*controlConstants.RELATIVE_TEXT_OFFSET))), f"P{pt0s}")
+ 
+	E_FUNCTIONS_UTILITY.redText(imageOrientation, disp, center, f"TOO SMALL")
+ 
+	E_FUNCTIONS_UTILITY.redText(imageOrientation, disp, (pt1[0], int(pt1[1] * (1 + controlConstants.RELATIVE_TEXT_OFFSET))), f"D{pt1}")
+	E_FUNCTIONS_UTILITY.redText(imageOrientation, disp, (pt1[0], int(pt1[1] * (1 + 2*controlConstants.RELATIVE_TEXT_OFFSET))), f"P{pt1s}")
