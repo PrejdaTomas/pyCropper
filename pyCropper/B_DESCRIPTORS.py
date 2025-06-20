@@ -4,12 +4,12 @@ except: from .A_DEPENDENCIES import runConstants, RunMode
 
 if runConstants.RUNMODE== RunMode.RUN:
 	from .A_DEPENDENCIES import Number, typing, os
-	from .A_DEPENDENCIES import cv2Image, np
+	from .A_DEPENDENCIES import cv2t, np
 	from . import A_DEPENDENCIES
 
 else:
 	from A_DEPENDENCIES import Number, typing, os
-	from A_DEPENDENCIES import cv2Image, np
+	from A_DEPENDENCIES import cv2t, np
 	import A_DEPENDENCIES
 
 # instance: The instance of the class where the descriptor is used.
@@ -22,6 +22,7 @@ class NonUniqueDescr:
 		self.name = name
 
 	def __get__(self, instance: A_DEPENDENCIES.CLASS, owner: typing.Type[A_DEPENDENCIES.CLASS]) -> str:
+		if not self.name in instance.__dict__: instance.__dict__[self.name] = None
 		return instance.__dict__[self.name]
 
 	def __set__(self, instance: A_DEPENDENCIES.CLASS, value: int) -> None:
@@ -70,11 +71,13 @@ class CreatePathDescriptor(NonUniqueDescr):
 
 	def __get__(self, instance: A_DEPENDENCIES.CLASS, owner: typing.Type[A_DEPENDENCIES.CLASS]) -> A_DEPENDENCIES.Path:
 		if not os.path.exists(instance.__dict__[self.name]):
+			#print(f"{instance.__class__.__name__}: the path {instance.__dict__[self.name]} does not exist, creating")
 			os.makedirs(instance.__dict__[self.name], exist_ok=True)
 		return instance.__dict__[self.name]
 
 	def __set__(self, instance: A_DEPENDENCIES.CLASS, value: A_DEPENDENCIES.Path) -> None:
 		if not os.path.exists(value):
+			#print(f"{instance.__class__.__name__}: the path {value} does not exist, creating")
 			os.makedirs(value, exist_ok=True)
 		instance.__dict__[self.name] = value
 
@@ -208,15 +211,17 @@ class WriteOnceMixin:
 
 
 
-
+class RangedInt(CheckIntMixin, RangedNumber): pass
+class RangedFloat(CheckFloatMixin, RangedNumber): pass
 
 
 
 class WriteOnce_UnsignedInteger(WriteOnceMixin, CheckIntMixin, UnsignedInteger): pass
 
-class WriteOnce_RangedInt(WriteOnceMixin, CheckIntMixin, RangedNumber): pass
+class WriteOnce_RangedInt(WriteOnceMixin, RangedInt): pass
 
-class WriteOnce_RangedFloat(WriteOnceMixin, CheckFloatMixin, RangedNumber): pass
+class WriteOnce_RangedFloat(WriteOnceMixin, RangedFloat): pass
+
 
 class WriteOnce_CreatePath(WriteOnceMixin, CreatePathDescriptor): pass
 

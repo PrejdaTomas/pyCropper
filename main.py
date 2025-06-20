@@ -1,7 +1,11 @@
-import os
-import pyCropper
+from pyCropper import FolderProcessor
+from pyCropper import userConstants
 
 if __name__ == "__main__":
-	outputImgtype = pyCropper.ImageType[pyCropper.userConstants.IMAGE_TYPE]
-
-	pyCropper.processImages(workDir= pyCropper.userConstants.FROM_FOLDER, outputImageType= outputImgtype)
+	print(userConstants)
+	processor = FolderProcessor(
+		sourceFolder=userConstants.SourceFolder,
+		targetFolder=userConstants.TargetFolder,
+		screenScale=userConstants.ScreenPercentage
+	)
+	processor.processImages()

@@ -4,6 +4,9 @@ import typing
 from numbers import Number
 from enum import Enum, IntEnum
 import cv2
+import cv2.typing as cv2t
+
+
 import numpy as np
 import time
 import ctypes
@@ -12,6 +15,9 @@ import pickle
 from PIL import Image, ImageTk
 import tkinter as tk
 import signal, sys
+import math
+import itertools
+import time
 
 def signal_handler(sig, frame):
 	print('You pressed Ctrl+C!')
@@ -19,7 +25,7 @@ def signal_handler(sig, frame):
 
 signal.signal(signal.SIGINT, signal_handler)
 aPoint		= typing.Tuple[Number, Number]
-aCorners	= typing.Sequence[aPoint]
+aCorners	= typing.Tuple[aPoint]
 aColour		= typing.Tuple[int, int, int]
 aShape		= typing.Tuple[int, int, int]
 
@@ -56,7 +62,6 @@ CV2_DOWN:		int = 84
 CV2_KEYS:		typing.Tuple[int, ...] = (CV2_ESCAPE, CV2_LEFT, CV2_RIGHT, CV2_UP, CV2_DOWN)
 
 
-cv2Image = cv2.typing.MatLike
 
 class ImageType(Enum):
 	JPG = "jpg"

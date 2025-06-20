@@ -1,4 +1,4 @@
-from .A_DEPENDENCIES import runConstants as _runConstants
+from .A_DEPENDENCIES import runConstants as _runConstants, RunMode
 print("Initializing the Cropper package")
 if _runConstants.RUNMODE == RunMode.TEST:
 	print("In a test run!")
@@ -6,17 +6,18 @@ if _runConstants.RUNMODE == RunMode.TEST:
 	import B_DESCRIPTORS
 	import C_CLASSES_UTILITY
 	import D_CONSTANTS
-	import E_FUNCTIONS_UTILITY
+	from D_CONSTANTS import userConstants
+	import E_FUNC_UTIL
 	import G_CLASSES_CV2
-	import H_FUNCTIONS_CV2
+	from G_CLASSES_CV2 import FolderProcessor
  
-from .A_DEPENDENCIES import aPoint, aColour, aCorners, aShape
-from .A_DEPENDENCIES import Path
-from .C_CLASSES_UTILITY import ImageType, RunMode
-from .D_CONSTANTS import userConstants, controlConstants
-from .E_FUNCTIONS_UTILITY import getPicsInDirectory
-from .E_FUNCTIONS_UTILITY import getCycledPicsInDirectory
-from .H_FUNCTIONS_CV2 import processImage
-from .H_FUNCTIONS_CV2 import processImages
-
+else:
+	from . import A_DEPENDENCIES
+	from . import B_DESCRIPTORS
+	from . import C_CLASSES_UTILITY
+	from . import D_CONSTANTS
+	from .D_CONSTANTS import userConstants
+	from . import E_FUNC_UTIL
+	from . import G_CLASSES_CV2
+	from .G_CLASSES_CV2 import FolderProcessor
 
